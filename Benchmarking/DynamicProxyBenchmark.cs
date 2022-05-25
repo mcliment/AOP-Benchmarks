@@ -12,17 +12,18 @@ namespace Benchmarking
         private readonly Type _proxyType;
         private readonly Type _dynamicProxyType;
         private readonly NProxyInterceptor _nProxyInterceptor;
-        private readonly IProxyTemplate _nproxyTemplate;
+        private readonly IProxyTemplate _nProxyTemplate;
 
         public DynamicProxyCreationBenchmark()
         {
             var proxyBuilder = new ProxyBuilder();
             var proxyGenerator = new ProxyGenerator();
             var proxyFactory = new ProxyFactory();
+            
             _proxyType = proxyBuilder.GetProxyType(new ProxyDefinition(typeof(TestClass), true).Implement(() => new LightInjectInterceptor()));
             _dynamicProxyType = proxyGenerator.ProxyBuilder.CreateClassProxyType(typeof(TestClass), Type.EmptyTypes, ProxyGenerationOptions.Default);
             _nProxyInterceptor = new NProxyInterceptor();
-            _nproxyTemplate = proxyFactory.GetProxyTemplate(typeof(TestClass), Enumerable.Empty<Type>());
+            _nProxyTemplate = proxyFactory.GetProxyTemplate(typeof(TestClass), Enumerable.Empty<Type>());
         }
 
         [Benchmark(Baseline = true)]
@@ -35,25 +36,25 @@ namespace Benchmarking
         [Benchmark]
         public TestClass NoProxyActivator()
         {
-            return (TestClass)Activator.CreateInstance(typeof(TestClass));
+            return (TestClass)Activator.CreateInstance(typeof(TestClass))!;
         }
 
         [Benchmark]
         public TestClass LightInjectCreation()
         {
-            return (TestClass)Activator.CreateInstance(_proxyType);
+            return (TestClass)Activator.CreateInstance(_proxyType)!;
         }
 
         [Benchmark]
         public TestClass DynamicProxyCreation()
         {
-            return (TestClass)Activator.CreateInstance(_dynamicProxyType);
+            return (TestClass)Activator.CreateInstance(_dynamicProxyType)!;
         }
 
         [Benchmark]
         public TestClass NProxyCreation()
         {
-            return (TestClass) _nproxyTemplate.CreateProxy(_nProxyInterceptor);
+            return (TestClass) _nProxyTemplate.CreateProxy(_nProxyInterceptor);
         }
     }
     
@@ -101,7 +102,7 @@ namespace Benchmarking
 
     public class NProxyInterceptor : IInvocationHandler
     {
-        public object Invoke(object target, MethodInfo methodInfo, object[] parameters)
+        public object? Invoke(object target, MethodInfo methodInfo, object[] parameters)
         {
             return methodInfo.Invoke(target, parameters);
         }

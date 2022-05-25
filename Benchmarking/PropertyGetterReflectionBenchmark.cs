@@ -6,47 +6,48 @@ namespace Benchmarking
 {
     public class PropertyGetterReflectionBenchmark
     {
-        readonly PropertyInfo _cached;
-        readonly Delegate _delegate;
-        Func<object> _lambda;
-        readonly Func<object> _typedDelegate;
-        public String Property { get; set; }
-        String _toSet;
+        private readonly PropertyInfo _cached;
+        private readonly Delegate _delegate;
+        private readonly Func<object> _lambda;
+        private readonly Func<object> _typedDelegate;
+        
+        public string Property { get; set; }
+        string? _toSet;
 
         public PropertyGetterReflectionBenchmark()
         {
             Property = "a";
 
             _cached = GetType().GetProperties().First();
-            _delegate = _cached.GetMethod.CreateDelegate(typeof(Func<String>), this);
+            _delegate = _cached.GetMethod!.CreateDelegate(typeof(Func<String>), this);
             _typedDelegate = (Func<Object>)_cached.GetMethod.CreateDelegate(typeof(Func<Object>), this);
 
-            CreateLambda(this, "Property");
+            _lambda = CreateLambda(this, nameof(Property));
         }
 
-        void CreateLambda(object value, string propertyName)
+        private static Func<object> CreateLambda(object value, string propertyName)
         {
             var property = Expression.Property(Expression.Constant(value), propertyName);
             var expression = Expression.Lambda<Func<Object>>(property);
-            _lambda = expression.Compile();
+            return expression.Compile();
         }
 
         [Benchmark]
         public void UncachedPropertyInfoGet()
         {
-            _toSet = (string) GetType().GetProperties().First().GetValue(this);
+            _toSet = (string?) GetType().GetProperties().First().GetValue(this);
         }
 
         [Benchmark]
         public void CachedPropertyInfoGet()
         {
-            _toSet = (string) _cached.GetValue(this);
+            _toSet = (string?) _cached.GetValue(this);
         }
 
         [Benchmark]
         public void DynamicInvokeDelegateCreate()
         {
-            _toSet = (string) _delegate.DynamicInvoke();
+            _toSet = (string?) _delegate.DynamicInvoke();
         }
 
         [Benchmark]

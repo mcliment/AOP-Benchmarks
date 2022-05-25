@@ -6,27 +6,28 @@ namespace Benchmarking
 {
     public class PropertySetterReflectionBenchmark
     {
-        readonly PropertyInfo _cached;
-        readonly Delegate _delegate;
-        Action<string> _lambda;
-        Action<string> _typedDelegate;
-        public String Property { get; set; }
+        private readonly PropertyInfo _cached;
+        private readonly Delegate _delegate;
+        private readonly Action<string> _lambda;
+        private readonly Action<string> _typedDelegate;
+        
+        public string? Property { get; set; }
 
         public PropertySetterReflectionBenchmark()
         {
             _cached = GetType().GetProperties().First();
-            _delegate = _cached.SetMethod.CreateDelegate(typeof(Action<String>), this);
+            _delegate = _cached.SetMethod!.CreateDelegate(typeof(Action<String>), this);
             _typedDelegate = (Action<String>) _cached.SetMethod.CreateDelegate(typeof(Action<String>), this);
 
-            CreateLambda(this, "Property");
+            _lambda = CreateLambda(this, nameof(Property));
         }
 
-        void CreateLambda(object value, string propertyName)
+        private static Action<string> CreateLambda(object value, string propertyName)
         {
             var parameterExpression = Expression.Parameter(typeof (String), "StringName");
             var body = Expression.Assign(Expression.Property(Expression.Constant(value), propertyName), parameterExpression);
             var expression = Expression.Lambda<Action<String>>(body, parameterExpression);
-            _lambda = expression.Compile();
+            return expression.Compile();
         }
 
         [Benchmark]
