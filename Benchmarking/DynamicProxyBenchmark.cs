@@ -1,8 +1,5 @@
-using System;
-using System.Linq;
 using System.Reflection;
-using BenchmarkDotNet;
-using BenchmarkDotNet.Tasks;
+using BenchmarkDotNet.Attributes;
 using Castle.DynamicProxy;
 using LightInject.Interception;
 using NProxy.Core;
@@ -10,7 +7,6 @@ using IInterceptor = LightInject.Interception.IInterceptor;
 
 namespace Benchmarking
 {
-    [BenchmarkTask]
     public class DynamicProxyCreationBenchmark
     {
         private readonly Type _proxyType;
@@ -29,7 +25,7 @@ namespace Benchmarking
             _nproxyTemplate = proxyFactory.GetProxyTemplate(typeof(TestClass), Enumerable.Empty<Type>());
         }
 
-        [Benchmark]
+        [Benchmark(Baseline = true)]
         public TestClass NoProxyConstructor()
         {
             return new TestClass();
@@ -60,8 +56,7 @@ namespace Benchmarking
             return (TestClass) _nproxyTemplate.CreateProxy(_nProxyInterceptor);
         }
     }
-
-    [BenchmarkTask]
+    
     public class DynamicProxyCallBenchmark
     {
         private readonly TestClass _lightInjectInstance;
@@ -97,7 +92,7 @@ namespace Benchmarking
             _nproxyInstance.CallMethod();
         }
 
-        [Benchmark]
+        [Benchmark(Baseline = true)]
         public void NoProxyCallMethod()
         {
             _instance.CallMethod();

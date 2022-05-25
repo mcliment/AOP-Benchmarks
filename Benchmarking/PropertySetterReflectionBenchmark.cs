@@ -1,13 +1,9 @@
-﻿using System;
-using System.Linq;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using System.Reflection;
-using BenchmarkDotNet;
-using BenchmarkDotNet.Tasks;
+using BenchmarkDotNet.Attributes;
 
 namespace Benchmarking
 {
-    [BenchmarkTask]
     public class PropertySetterReflectionBenchmark
     {
         readonly PropertyInfo _cached;
@@ -63,7 +59,7 @@ namespace Benchmarking
             _lambda("e");
         }
 
-        [Benchmark]
+        [Benchmark(Baseline = true)]
         public void NativeAssignment()
         {
             Property = "f";

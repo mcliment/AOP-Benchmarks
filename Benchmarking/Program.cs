@@ -1,6 +1,4 @@
-﻿using System;
-using BenchmarkDotNet;
-using BenchmarkDotNet.Tasks;
+﻿using BenchmarkDotNet.Running;
 
 namespace Benchmarking
 {
@@ -8,19 +6,19 @@ namespace Benchmarking
     {
         static void Main(string[] args)
         {
-            var competitions = new BenchmarkCompetitionSwitch(new[]
+            var switcher = BenchmarkSwitcher.FromTypes(new[]
             {
-                typeof (PropertyGetterReflectionBenchmark),
-                typeof (PropertySetterReflectionBenchmark),
+                typeof(PropertyGetterReflectionBenchmark),
+                typeof(PropertySetterReflectionBenchmark),
                 typeof(DynamicProxyCallBenchmark),
                 typeof(DynamicProxyCreationBenchmark)
             });
 
-            competitions.Run(args);
+            switcher.Run(args);
 
-            //            new BenchmarkRunner().RunCompetition(new PropertyGetterReflectionBenchmark());
+            // new BenchmarkRunner().RunCompetition(new PropertyGetterReflectionBenchmark());
 
-//                        new DynamicProxyCreationBenchmark().NProxyCreation();
+            // new DynamicProxyCreationBenchmark().NProxyCreation();
 
             Console.ReadKey();
         }

@@ -106,6 +106,9 @@ csx
 # Windows Store app package directory
 AppPackages/
 
+# Rider
+.idea/
+
 # Others
 sql/
 *.Cache
